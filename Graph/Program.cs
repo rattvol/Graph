@@ -8,6 +8,7 @@ namespace Graph
     {
         static void Main(string[] args)
         {
+            int[] arrOfNodes;
             int numOfNodes, numOfRibs;
             int[,] arrOfRibs;
             string result = "";
@@ -17,61 +18,53 @@ namespace Graph
                 string[] objOfLine = line.Split(' ');
                 numOfNodes = Convert.ToInt32(objOfLine[0]);//количество вершин
                 numOfRibs = Convert.ToInt32(objOfLine[1]);//количество ребер
-                //загрузка массива ребер
-                arrOfRibs = new int[numOfRibs, 2];
+                //первичное заполнение массива степеней вершин
+                arrOfNodes = new int[numOfNodes];
                 for (int i = 0; i < numOfRibs; i++)
                 {
-                    do{
-                    line = ClearLine(streamReader.ReadLine());
+                    do
+                    {
+                        line = ClearLine(streamReader.ReadLine());
                     }
-                    while (line == "") ;//чтение с пропуском пустых строк
+                    while (line == "");//чтение с пропуском пустых строк
                     objOfLine = line.Split(' ');
-                    arrOfRibs[i, 0] = Convert.ToInt32(objOfLine[0]);
-                    arrOfRibs[i, 1] = Convert.ToInt32(objOfLine[1]);
+                    arrOfNodes[Convert.ToInt32(objOfLine[0]) - 1]++;
+                    arrOfNodes[Convert.ToInt32(objOfLine[1]) - 1]++;
                 }
-
             }
-            //первичное заполнение массива степеней вершин
-            int[] arrOfNodes = new int[numOfNodes];
-            MassFiling(ref arrOfNodes, arrOfRibs, numOfNodes, numOfRibs);
             //Сортировка массива по убыванию
-            Sort(ref arrOfNodes, numOfNodes);
+            SortFast(ref arrOfNodes, 0, arrOfNodes.Length - 1);
             //запись результата в строку
-           result = ToLine(arrOfNodes, numOfNodes);
+            result = ToLine(arrOfNodes, numOfNodes);
             //вывод в файл
             using (StreamWriter streamWriter = new StreamWriter("output.txt", false))
                 streamWriter.WriteLine(result);
         }
-        public static string ClearLine (string line)//пропуск пустых строк и двойных пробелов
+        public static string ClearLine(string line)//пропуск пустых строк и двойных пробелов
         {
             return Regex.Replace(line, "[ ]+", " ").Trim();
         }
-        public static void MassFiling(ref int[] array, int[,] readArray, int numOfNodes, int numOfRibs)
-        {
-            for (int i = 0; i < numOfNodes; i++)
-            {
-                array[i] = 0;//по умолчанию степень 0
-                for (int n = 0; n < numOfRibs; n++)
-                {
-                    if (readArray[n, 0] == i + 1 || readArray[n, 1] == i + 1) array[i]++;//если ребро содержит номер вершины добавляем в массив
-                }
 
-            }
-        }
-        public static void Sort (ref int[] array, int arrLength)
+       
+        public static void SortFast(ref int[] arr, int first, int last)
         {
-            for (int i = 0; i< arrLength - 1; i++)
+            int p = arr[(last - first) / 2 + first];
+            int temp;
+            int i = first, j = last;
+            while (i <= j)
             {
-                for (int n = 0; n<(arrLength - (i+1)); n++)
+                while (arr[i] > p && i <= last) ++i;
+                while (arr[j] < p && j >= first) --j;
+                if (i <= j)
                 {
-                    if (array[n] < array[n + 1])
-                    {
-                        int temp = array[n + 1];
-                        array[n + 1] = array[n];
-                        array[n] = temp;
-                    }
-}
+                    temp = arr[i];
+                    arr[i] = arr[j];
+                    arr[j] = temp;
+                    ++i; --j;
+                }
             }
+            if (j > first) SortFast(ref arr, first, j);
+            if (i < last) SortFast(ref arr, i, last);
         }
         public static string ToLine(int[] array, int arrLength)
         {
