@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Text.RegularExpressions;
 
 namespace Graph
 {
@@ -10,11 +9,9 @@ namespace Graph
         {
             int[] arrOfNodes;
             int numOfNodes, numOfRibs;
-            int[,] arrOfRibs;
-            string result = "";
             using (StreamReader streamReader = new StreamReader("input.txt"))
             {
-                string line = ClearLine(streamReader.ReadLine());
+                string line = streamReader.ReadLine();
                 string[] objOfLine = line.Split(' ');
                 numOfNodes = Convert.ToInt32(objOfLine[0]);//количество вершин
                 numOfRibs = Convert.ToInt32(objOfLine[1]);//количество ребер
@@ -22,11 +19,7 @@ namespace Graph
                 arrOfNodes = new int[numOfNodes];
                 for (int i = 0; i < numOfRibs; i++)
                 {
-                    do
-                    {
-                        line = ClearLine(streamReader.ReadLine());
-                    }
-                    while (line == "");//чтение с пропуском пустых строк
+                   line = streamReader.ReadLine();
                     objOfLine = line.Split(' ');
                     arrOfNodes[Convert.ToInt32(objOfLine[0]) - 1]++;
                     arrOfNodes[Convert.ToInt32(objOfLine[1]) - 1]++;
@@ -34,17 +27,13 @@ namespace Graph
             }
             //Сортировка массива по убыванию
             SortFast(ref arrOfNodes, 0, arrOfNodes.Length - 1);
-            //запись результата в строку
-            result = ToLine(arrOfNodes, numOfNodes);
             //вывод в файл
             using (StreamWriter streamWriter = new StreamWriter("output.txt", false))
-                streamWriter.WriteLine(result);
+                for (int i = 0; i < numOfNodes; i++)
+                {
+                    streamWriter.Write(arrOfNodes[i].ToString() + " ");
+                }
         }
-        public static string ClearLine(string line)//пропуск пустых строк и двойных пробелов
-        {
-            return Regex.Replace(line, "[ ]+", " ").Trim();
-        }
-
        
         public static void SortFast(ref int[] arr, int first, int last)
         {
@@ -65,15 +54,6 @@ namespace Graph
             }
             if (j > first) SortFast(ref arr, first, j);
             if (i < last) SortFast(ref arr, i, last);
-        }
-        public static string ToLine(int[] array, int arrLength)
-        {
-            string output = "";
-            for (int i = 0; i < arrLength; i++)
-            {
-                output += array[i].ToString() + " ";
-            }
-            return output;
         }
     }
 }
